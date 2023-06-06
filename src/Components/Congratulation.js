@@ -1,3 +1,4 @@
+import { useAuth0 } from '@auth0/auth0-react';
 import React, { useEffect, useRef, useState } from 'react'
 import Confetti from "react-confetti";
 import { styled } from 'styled-components';
@@ -6,17 +7,20 @@ const Congratulation = () => {
     const [height, setHeight] = useState(null);
     const [width, setWidth] = useState(null);
     const confetiRef = useRef(null);
+    const { loginWithRedirect, isAuthenticated, logout, user } = useAuth0();
   
     useEffect(() => {
       setHeight(confetiRef.current.clientHeight);
       setWidth(confetiRef.current.clientWidth);
     }, []);
+
+    let name=user.given_name+""+user.family_name
   
     return (
         <Wrapper>
         <div className="confetti">
         <div className="confettie-wrap" ref={confetiRef} style={{  backgroundColor: "darkslateblue",padding:"300px"}}>
-        <h3>Congratualtions! Your order as been Placed </h3>
+        <h3>Congratualtions!{name} Your order as been Placed </h3>
           <Confetti numberOfPieces={150} width={width} height={height} />
         </div>
       </div>

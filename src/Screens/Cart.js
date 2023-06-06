@@ -1,19 +1,24 @@
 import styled from "styled-components";
 import { useCartContext } from "../context/cart_context";
 import CartItem from "../Components/CartItem";
-import { Link,  useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../Components/styles/Button";
 import FormatPrice from "../helpers/Formatprice";
 import { useAuth0 } from "@auth0/auth0-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
 
 const Cart = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const { cart, clearCart, total_price, shipping_fee } = useCartContext();
   const { loginWithRedirect, isAuthenticated, logout, user } = useAuth0();
+  const [location, setLocation] = useState([]);
+  const [pincode, setPincode] = useState([]);
+  const [error, setError] = useState("");
 
   console.log("cart", cart);
+  console.log("user",user);
 
   if (cart?.length === 0) {
     return (
@@ -26,9 +31,17 @@ const Cart = () => {
   // toaster for non loggedin users
 
   const notify = () => {
-    !isAuthenticated ? toast.error("Please Login!", {
-      position: toast.POSITION.TOP_CENTER,
-    }):navigate('/congrtaulation')
+    if (location === ""||location.length===0) {
+      setError("Please Enter Your Location");
+    } else if (pincode === ""||pincode.length===0) {
+      setError("Please Enter Your Pincode");
+    } else {
+      !isAuthenticated
+        ? toast.error("Please Login!", {
+            position: toast.POSITION.TOP_CENTER,
+          })
+        : navigate("/congrtaulation");
+    }
   };
 
   return (
@@ -52,12 +65,37 @@ const Cart = () => {
           <Link to="/products">
             <Button> continue Shopping </Button>
           </Link>
-          <Button onClick={notify} >Buy Now</Button>
-          <ToastContainer/>
+
+          <form
+            action="https://formspree.io/f/moqzzrzn"
+            method="POST"
+            className="contact-inputs"
+          >
+            <input
+            
+              type="text"
+              placeholder="Enter Your Location"
+              required
+              autoComplete="off"
+              onChange={(e) => setLocation(e.target.value)}
+            />
+            <input
+             style={{marginLeft:"2rem"}}
+              placeholder="Enter Your Pincode"
+              required
+              autoComplete="off"
+              onChange={(e) => setPincode(e.target.value)}
+            />
+          </form>
+
+          <Button onClick={notify}>Buy Now</Button>
+          <ToastContainer />
           <Button className="btn btn-clear" onClick={clearCart}>
             clear cart
           </Button>
         </div>
+
+        <p style={{color:"red",textAlign:"center"}}>{error}</p>
 
         {/* order total_amount */}
         <div className="order-total--amount">
